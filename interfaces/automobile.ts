@@ -5,6 +5,7 @@ export interface Automobile {
     number: string;
     price: number;
     image: string | null;
+    images: { image: string }[] | null; // Обновлено для поддержки галереи изображений
     tarif: string[];
 }
 

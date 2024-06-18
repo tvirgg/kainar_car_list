@@ -13,6 +13,7 @@ const Home = () => {
     const [automobiles, setAutomobiles] = useState<AutomobileListResponse | null>(null);
     const [page, setPage] = useState(1);
     const [selectedBrand, setSelectedBrand] = useState<string>('');
+    const [selectedModels, setSelectedModels] = useState<string[]>([]);
 
     useEffect(() => {
         const loadEleganceFilters = async () => {
@@ -23,14 +24,22 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedBrand) {
-            const loadEleganceAutomobiles = async () => {
-                const data = await fetchEleganceAutomobiles([selectedBrand], [], page);
+        const loadEleganceAutomobiles = async () => {
+            const data = await fetchEleganceAutomobiles([], [], page);
+            setAutomobiles(data);
+        };
+        loadEleganceAutomobiles();
+    }, [page]);
+
+    useEffect(() => {
+        const loadFilteredAutomobiles = async () => {
+            if (selectedBrand || selectedModels.length > 0) {
+                const data = await fetchEleganceAutomobiles([selectedBrand], selectedModels, page);
                 setAutomobiles(data);
-            };
-            loadEleganceAutomobiles();
-        }
-    }, [selectedBrand, page]);
+            }
+        };
+        loadFilteredAutomobiles();
+    }, [selectedBrand, selectedModels, page]);
 
     return (
         <div className="container">
@@ -41,6 +50,8 @@ const Home = () => {
                 selectedBrand={selectedBrand}
                 setAutomobiles={setAutomobiles}
                 page={page}
+                selectedModels={selectedModels}
+                setSelectedModels={setSelectedModels}
             />
             {automobiles && <AutomobileList automobiles={automobiles.list} />}
             {automobiles && <Pagination page={page} setPage={setPage} totalPages={automobiles.pages} />}

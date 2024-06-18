@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { FilterProps } from '@/interfaces/filterProps';
 import { fetchEleganceAutomobiles } from '@/utils/api';
 import { AutomobileListResponse } from '@/interfaces/automobile';
@@ -10,11 +10,20 @@ interface Props extends FilterProps {
     selectedBrand: string;
     setAutomobiles: (data: AutomobileListResponse | null) => void;
     page: number;
+    selectedModels: string[];
+    setSelectedModels: (models: string[]) => void;
 }
 
-const EleganceFilter: React.FC<Props> = ({ eleganceFilters, setEleganceFilters, setSelectedBrand, selectedBrand, setAutomobiles, page }) => {
-    const [selectedModels, setSelectedModels] = useState<string[]>([]);
-
+const EleganceFilter: React.FC<Props> = ({
+    eleganceFilters,
+    setEleganceFilters,
+    setSelectedBrand,
+    selectedBrand,
+    setAutomobiles,
+    page,
+    selectedModels,
+    setSelectedModels
+}) => {
     const handleBrandClick = useCallback(async (brand: string) => {
         setSelectedBrand(brand);
         setSelectedModels([]);

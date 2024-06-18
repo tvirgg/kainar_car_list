@@ -3,11 +3,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { Automobile } from '@/interfaces/automobile';
+import PhotoGallery from './PhotoGallery';
 
 const AutomobileCard = ({ automobile }: { automobile: Automobile }) => {
     return (
-        <div className="automobile-card">
-            {automobile.image && <img src={automobile.image} alt={`${automobile.brand} ${automobile.model}`} />}
+        <div className="automobile-card">-
+            {automobile.images && automobile.images.length > 0 ? (
+                <PhotoGallery images={automobile.images} />
+            ) : (
+                <img src={automobile.image || '/placeholder.jpg'} alt={`${automobile.brand} ${automobile.model}`} />
+            )}
             <h3>{automobile.brand} {automobile.model}</h3>
             <p>Reg. Number: {automobile.number}</p>
             <p>Price: {automobile.price}</p>
