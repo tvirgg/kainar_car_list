@@ -6,8 +6,8 @@ import { fetchEleganceAutomobiles, fetchEleganceFilters } from '@/utils/api';
 import { AutomobileListResponse } from '@/interfaces/automobile';
 
 interface Props extends FilterProps {
-    setSelectedBrand: (brand: string) => void;
-    selectedBrand: string;
+    setSelectedBrands: (brands: string[]) => void;
+    selectedBrands: string[];
     setAutomobiles: (data: AutomobileListResponse | null) => void;
     page: number;
     selectedModels: string[];
@@ -17,8 +17,8 @@ interface Props extends FilterProps {
 const EleganceFilter: React.FC<Props> = ({
     eleganceFilters,
     setEleganceFilters,
-    setSelectedBrand,
-    selectedBrand,
+    setSelectedBrands,
+    selectedBrands,
     setAutomobiles,
     page,
     selectedModels,
@@ -33,23 +33,24 @@ const EleganceFilter: React.FC<Props> = ({
     }, [setEleganceFilters]);
 
     const handleBrandClick = useCallback(async (brand: string) => {
-        setSelectedBrand(brand);
-        setSelectedModels([]);
-        console.log('Brand clicked:', brand);
-        const data = await fetchEleganceAutomobiles([brand], [], page);
+        const updatedBrands = selectedBrands.includes(brand)
+            ? selectedBrands.filter(b => b !== brand)
+            : [...selectedBrands, brand];
+        setSelectedBrands(updatedBrands);
+        console.log('Brands clicked:', updatedBrands);
+        const data = await fetchEleganceAutomobiles(updatedBrands, selectedModels, page);
         setAutomobiles(data);
-    }, [setSelectedBrand, setSelectedModels, setAutomobiles, page]);
+    }, [selectedBrands, selectedModels, setSelectedBrands, setAutomobiles, page]);
 
     const handleModelClick = useCallback(async (model: string) => {
         const updatedModels = selectedModels.includes(model)
             ? selectedModels.filter(m => m !== model)
             : [...selectedModels, model];
-
-        console.log('Model clicked:', model, updatedModels);
         setSelectedModels(updatedModels);
-        const data = await fetchEleganceAutomobiles([selectedBrand], updatedModels, page);
+        console.log('Models clicked:', updatedModels);
+        const data = await fetchEleganceAutomobiles(selectedBrands, updatedModels, page);
         setAutomobiles(data);
-    }, [selectedModels, selectedBrand, setAutomobiles, page]);
+    }, [selectedModels, selectedBrands, setSelectedModels, setAutomobiles, page]);
 
     return (
         <div className="filter">
@@ -59,7 +60,7 @@ const EleganceFilter: React.FC<Props> = ({
                     <button
                         key={marque}
                         onClick={() => handleBrandClick(marque)}
-                        className={selectedBrand === marque ? 'active' : ''}
+                        className={selectedBrands.includes(marque) ? 'active' : ''}
                     >
                         {marque}
                     </button>
@@ -68,7 +69,7 @@ const EleganceFilter: React.FC<Props> = ({
             <div className="filter-group">
                 <h3>Модели</h3>
                 {eleganceFilters.models
-                    .filter(model => model.brand === selectedBrand)
+                    .filter(model => selectedBrands.includes(model.brand))
                     .flatMap(modelObj => modelObj.models)
                     .map((model) => (
                         <button

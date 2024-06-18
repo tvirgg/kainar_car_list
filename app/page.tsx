@@ -15,29 +15,14 @@ const Home = () => {
         const savedPage = localStorage.getItem('page');
         return savedPage !== null ? Number(savedPage) : 1;
     });
-    
-    const [selectedBrand, setSelectedBrand] = useState<string>(() => {
-        const savedBrand = localStorage.getItem('selectedBrand');
-        return savedBrand !== null ? savedBrand : '';
+    const [selectedBrands, setSelectedBrands] = useState<string[]>(() => {
+        const savedBrands = localStorage.getItem('selectedBrands');
+        return savedBrands !== null ? JSON.parse(savedBrands) : [];
     });
-    
     const [selectedModels, setSelectedModels] = useState<string[]>(() => {
         const savedModels = localStorage.getItem('selectedModels');
         return savedModels !== null ? JSON.parse(savedModels) : [];
     });
-    
-
-    useEffect(() => {
-        // Чтение состояния из LocalStorage при первой загрузке
-        const savedPage = localStorage.getItem('page');
-        const savedBrand = localStorage.getItem('selectedBrand');
-        const savedModels = JSON.parse(localStorage.getItem('selectedModels') || '[]');
-        // console.log('Loaded from localStorage:', { savedPage, savedBrand, savedModels });
-    
-        if (savedPage) setPage(Number(savedPage));
-        if (savedBrand) setSelectedBrand(savedBrand);
-        setSelectedModels(savedModels);
-    }, []);
 
     useEffect(() => {
         const loadEleganceFilters = async () => {
@@ -49,27 +34,27 @@ const Home = () => {
 
     useEffect(() => {
         const loadEleganceAutomobiles = async () => {
-            const data = await fetchEleganceAutomobiles([selectedBrand], selectedModels, page);
+            const data = await fetchEleganceAutomobiles(selectedBrands, selectedModels, page);
             setAutomobiles(data);
         };
         loadEleganceAutomobiles();
-    }, [selectedBrand, selectedModels, page]);
+    }, [selectedBrands, selectedModels, page]);
 
     useEffect(() => {
         // Сохранение состояния в LocalStorage при изменении фильтров или страницы
-        // console.log('Saving to localStorage:', { page, selectedBrand, selectedModels });
+        console.log('Saving to localStorage:', { page, selectedBrands, selectedModels });
         localStorage.setItem('page', page.toString());
-        localStorage.setItem('selectedBrand', selectedBrand);
+        localStorage.setItem('selectedBrands', JSON.stringify(selectedBrands));
         localStorage.setItem('selectedModels', JSON.stringify(selectedModels));
-    }, [selectedBrand, selectedModels]);
+    }, [page, selectedBrands, selectedModels]);
 
     return (
         <div className="container">
             <EleganceFilter
                 eleganceFilters={eleganceFilters}
                 setEleganceFilters={setEleganceFilters}
-                setSelectedBrand={setSelectedBrand}
-                selectedBrand={selectedBrand}
+                setSelectedBrands={setSelectedBrands}
+                selectedBrands={selectedBrands}
                 setAutomobiles={setAutomobiles}
                 page={page}
                 selectedModels={selectedModels}
