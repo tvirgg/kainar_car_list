@@ -11,9 +11,33 @@ import { AutomobileListResponse } from '@/interfaces/automobile';
 const Home = () => {
     const [eleganceFilters, setEleganceFilters] = useState<FilterData>({ marques: [], models: [], tariffs: [] });
     const [automobiles, setAutomobiles] = useState<AutomobileListResponse | null>(null);
-    const [page, setPage] = useState(1);
-    const [selectedBrand, setSelectedBrand] = useState<string>('');
-    const [selectedModels, setSelectedModels] = useState<string[]>([]);
+    const [page, setPage] = useState<number>(() => {
+        const savedPage = localStorage.getItem('page');
+        return savedPage !== null ? Number(savedPage) : 1;
+    });
+    
+    const [selectedBrand, setSelectedBrand] = useState<string>(() => {
+        const savedBrand = localStorage.getItem('selectedBrand');
+        return savedBrand !== null ? savedBrand : '';
+    });
+    
+    const [selectedModels, setSelectedModels] = useState<string[]>(() => {
+        const savedModels = localStorage.getItem('selectedModels');
+        return savedModels !== null ? JSON.parse(savedModels) : [];
+    });
+    
+
+    useEffect(() => {
+        // Чтение состояния из LocalStorage при первой загрузке
+        const savedPage = localStorage.getItem('page');
+        const savedBrand = localStorage.getItem('selectedBrand');
+        const savedModels = JSON.parse(localStorage.getItem('selectedModels') || '[]');
+        // console.log('Loaded from localStorage:', { savedPage, savedBrand, savedModels });
+    
+        if (savedPage) setPage(Number(savedPage));
+        if (savedBrand) setSelectedBrand(savedBrand);
+        setSelectedModels(savedModels);
+    }, []);
 
     useEffect(() => {
         const loadEleganceFilters = async () => {
@@ -25,21 +49,19 @@ const Home = () => {
 
     useEffect(() => {
         const loadEleganceAutomobiles = async () => {
-            const data = await fetchEleganceAutomobiles([], [], page);
+            const data = await fetchEleganceAutomobiles([selectedBrand], selectedModels, page);
             setAutomobiles(data);
         };
         loadEleganceAutomobiles();
-    }, [page]);
+    }, [selectedBrand, selectedModels, page]);
 
     useEffect(() => {
-        const loadFilteredAutomobiles = async () => {
-            if (selectedBrand || selectedModels.length > 0) {
-                const data = await fetchEleganceAutomobiles([selectedBrand], selectedModels, page);
-                setAutomobiles(data);
-            }
-        };
-        loadFilteredAutomobiles();
-    }, [selectedBrand, selectedModels, page]);
+        // Сохранение состояния в LocalStorage при изменении фильтров или страницы
+        // console.log('Saving to localStorage:', { page, selectedBrand, selectedModels });
+        localStorage.setItem('page', page.toString());
+        localStorage.setItem('selectedBrand', selectedBrand);
+        localStorage.setItem('selectedModels', JSON.stringify(selectedModels));
+    }, [selectedBrand, selectedModels]);
 
     return (
         <div className="container">

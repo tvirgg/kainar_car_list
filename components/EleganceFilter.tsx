@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { FilterProps } from '@/interfaces/filterProps';
-import { fetchEleganceAutomobiles } from '@/utils/api';
+import { fetchEleganceAutomobiles, fetchEleganceFilters } from '@/utils/api';
 import { AutomobileListResponse } from '@/interfaces/automobile';
 
 interface Props extends FilterProps {
@@ -24,9 +24,18 @@ const EleganceFilter: React.FC<Props> = ({
     selectedModels,
     setSelectedModels
 }) => {
+    useEffect(() => {
+        const loadEleganceFilters = async () => {
+            const data = await fetchEleganceFilters();
+            setEleganceFilters(data);
+        };
+        loadEleganceFilters();
+    }, [setEleganceFilters]);
+
     const handleBrandClick = useCallback(async (brand: string) => {
         setSelectedBrand(brand);
         setSelectedModels([]);
+        console.log('Brand clicked:', brand);
         const data = await fetchEleganceAutomobiles([brand], [], page);
         setAutomobiles(data);
     }, [setSelectedBrand, setSelectedModels, setAutomobiles, page]);
@@ -36,6 +45,7 @@ const EleganceFilter: React.FC<Props> = ({
             ? selectedModels.filter(m => m !== model)
             : [...selectedModels, model];
 
+        console.log('Model clicked:', model, updatedModels);
         setSelectedModels(updatedModels);
         const data = await fetchEleganceAutomobiles([selectedBrand], updatedModels, page);
         setAutomobiles(data);

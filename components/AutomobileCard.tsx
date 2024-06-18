@@ -11,7 +11,7 @@ const AutomobileCard = ({ automobile }: { automobile: Automobile }) => {
             {automobile.images && automobile.images.length > 0 ? (
                 <PhotoGallery images={automobile.images} />
             ) : (
-                <img src={automobile.image || '/placeholder.jpg'} alt={`${automobile.brand} ${automobile.model}`} />
+                <img src={automobile.image || ''} alt={`${automobile.brand} ${automobile.model}`} />
             )}
             <h3>{automobile.brand} {automobile.model}</h3>
             <p>Reg. Number: {automobile.number}</p>
