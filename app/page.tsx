@@ -1,28 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchEleganceFilters, fetchEleganceAutomobiles } from '@/utils/api';
 import AutomobileList from '@/components/AutomobileList';
 import EleganceFilter from '@/components/EleganceFilter';
 import Pagination from '@/components/Pagination';
 import { FilterData } from '@/interfaces/filterProps';
+import useClientStorage from './hooks/useClientStorage';
 import { AutomobileListResponse } from '@/interfaces/automobile';
 
 const Home = () => {
     const [eleganceFilters, setEleganceFilters] = useState<FilterData>({ marques: [], models: [], tariffs: [] });
     const [automobiles, setAutomobiles] = useState<AutomobileListResponse | null>(null);
-    const [page, setPage] = useState<number>(() => {
-        const savedPage = localStorage.getItem('page');
-        return savedPage !== null ? Number(savedPage) : 1;
-    });
-    const [selectedBrands, setSelectedBrands] = useState<string[]>(() => {
-        const savedBrands = localStorage.getItem('selectedBrands');
-        return savedBrands !== null ? JSON.parse(savedBrands) : [];
-    });
-    const [selectedModels, setSelectedModels] = useState<string[]>(() => {
-        const savedModels = localStorage.getItem('selectedModels');
-        return savedModels !== null ? JSON.parse(savedModels) : [];
-    });
+    const [page, setPage] = useClientStorage<number>('page', 1);
+    const [selectedBrands, setSelectedBrands] = useClientStorage<string[]>('selectedBrands', []);
+    const [selectedModels, setSelectedModels] = useClientStorage<string[]>('selectedModels', []);
 
     useEffect(() => {
         const loadEleganceFilters = async () => {
@@ -39,14 +31,6 @@ const Home = () => {
         };
         loadEleganceAutomobiles();
     }, [selectedBrands, selectedModels, page]);
-
-    useEffect(() => {
-        // Сохранение состояния в LocalStorage при изменении фильтров или страницы
-        console.log('Saving to localStorage:', { page, selectedBrands, selectedModels });
-        localStorage.setItem('page', page.toString());
-        localStorage.setItem('selectedBrands', JSON.stringify(selectedBrands));
-        localStorage.setItem('selectedModels', JSON.stringify(selectedModels));
-    }, [page, selectedBrands, selectedModels]);
 
     return (
         <div className="container">
