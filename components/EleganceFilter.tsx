@@ -48,6 +48,7 @@ const EleganceFilter: React.FC<Props> = ({
             : [...selectedModels, model];
         setSelectedModels(updatedModels);
         console.log('Models clicked:', updatedModels);
+
         const data = await fetchEleganceAutomobiles(selectedBrands, updatedModels, page);
         setAutomobiles(data);
     }, [selectedModels, selectedBrands, setSelectedModels, setAutomobiles, page]);
@@ -69,7 +70,7 @@ const EleganceFilter: React.FC<Props> = ({
             <div className="filter-group">
                 <h3>Модели</h3>
                 {eleganceFilters.models
-                    .filter(model => selectedBrands.includes(model.brand))
+                    .filter(model => selectedBrands.length === 0 || selectedBrands.includes(model.brand))
                     .flatMap(modelObj => modelObj.models)
                     .map((model) => (
                         <button
